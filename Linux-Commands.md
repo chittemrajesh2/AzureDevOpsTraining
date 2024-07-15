@@ -1,12 +1,12 @@
 # Here is a table with basic Linux commands
 | Command                       | Description                                         |
 |-------------------------------|-----------------------------------------------------|
-| `mkdir`                       | Create a Folder                                     |
-| `rmdir`                       | Delete a Folder                                     |
+| `mkdir FolderName`            | Create a Folder                                     |
+| `rmdir FolderName`            | Delete a Folder                                     |
 | `cat > filename.txt`          | Add the content                                     |
 | `cat >> filename.txt`         | See the data and add more content                   |
 | `cat filename.txt`            | See the Content                                     |
-| `touch`                       | Creating a single or multiple files                 |
+| `touch or touch file{1..10}.txt` | Creating a single or multiple files              |
 | `vi` or `vim`                 | Creating a file and add content                     |
 | `ls`                          | List directory contents                             |
 | `cd /path/to/directory`       | Change directory                                    |
