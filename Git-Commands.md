@@ -4,7 +4,7 @@
 | `git init`                              | Initialize a new Git repository                             |
 | `git clone <repository>`                | Clone an existing repository                                |
 | `git status`                            | Show the working directory status                           |
-| `git add <file>`                        | Add file contents to the index                              |
+| `git add <file> or . or -A`             | Add file contents to the index                              |
 | `git commit -m "message"`               | Record changes to the repository                            |
 | `git push`                              | Update remote refs along with associated objects            |
 | `git pull`                              | Fetch from and integrate with another repository or a local branch |
