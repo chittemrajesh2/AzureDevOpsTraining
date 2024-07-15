@@ -11,7 +11,7 @@
 | `git show <commit>`                     | Show various types of objects                               |
 | `git push`                              | Update remote refs along with associated objects            |
 | `git pull`                              | Fetch from and integrate with another repository or a local branch |
-| `git remote add origin <paste copied URL here>`| Fetch from and integrate with another repository or a local branch |
+| `git remote add origin <paste copied URL here>`| Add Azure Repositiory URL |
 | `git push origin Target_branch`         | Update remote refs along with associated objects  |
 
 | Command                                 | Description                                                 |
