@@ -8,12 +8,15 @@
 | `cat filename.txt`            | See the Content                                     |
 | `touch or touch file{1..10}.txt` | Creating a single or multiple files              |
 | `vi` or `vim`                 | Creating a file and add content                     |
-| `ls`                          | List directory contents                             |
+| `ls or ls -a`                 | List directory contents                             |
 | `cd /path/to/directory`       | Change directory                                    |
 | `pwd`                         | Print working directory                             |
 | `cp file1.txt file2.txt`      | Copy files or directories                           |
 | `mv oldname.txt newname.txt`  | Move or rename files or directories                 |
 | `rm file.txt`                 | Remove files or directories                         |
+
+| Command                       | Description                                         |
+|-------------------------------|-----------------------------------------------------|
 | `nano file.txt`               | Text editor                                         |
 | `chmod 755 script.sh`         | Change file modes or Access Control Lists           |
 | `chown user:group file.txt`   | Change file owner and group                         |
