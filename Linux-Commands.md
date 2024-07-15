@@ -1,4 +1,4 @@
-# baisc Linux Commands :
+# Here is a table with basic Linux commands
 | Command                       | Description                                         |
 |-------------------------------|-----------------------------------------------------|
 | `mkdir`                       | Create a Folder                                     |
