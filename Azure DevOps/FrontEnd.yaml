@@ -1,0 +1,55 @@
+# azure-pipelines.yml
+
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  ACR_NAME: 'your-acr-name'
+  IMAGE_NAME: 'your-image-name'
+  IMAGE_TAG: 'your-image-tag'
+  DOCKERFILE_PATH: 'Dockerfile' # Adjust if your Dockerfile is not in the root of the repository
+  REPOSITORY_NAME: 'your-repo-name'
+  SPRING_APP_NAME: 'your-spring-app-name'
+  SPRING_APP_SERVICE: 'your-spring-app-service'
+
+steps:
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'your-service-connection-name'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      # Log in to Azure
+      az login --service-principal -u $(servicePrincipalId) -p $(servicePrincipalKey) --tenant $(tenantId)
+      
+      # Log in to Azure Container Registry
+      az acr login --name $(ACR_NAME)
+
+      # Build the Docker image
+      docker build -t $(IMAGE_NAME):$(IMAGE_TAG) -f $(DOCKERFILE_PATH) .
+
+      # Tag the Docker image
+      docker tag $(IMAGE_NAME):$(IMAGE_TAG) $(ACR_NAME).azurecr.io/$(REPOSITORY_NAME)/$(IMAGE_NAME):$(IMAGE_TAG)
+
+      # Push the Docker image to ACR
+      docker push $(ACR_NAME).azurecr.io/$(REPOSITORY_NAME)/$(IMAGE_NAME):$(IMAGE_TAG)
+
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'your-service-connection-name'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      # Log in to Azure
+      az login --service-principal -u $(servicePrincipalId) -p $(servicePrincipalKey) --tenant $(tenantId)
+      
+      # Deploy the Docker image to Azure Spring App
+      az spring app deploy \
+        --name $(SPRING_APP_NAME) \
+        --service $(SPRING_APP_SERVICE) \
+        --docker-custom-image-name $(ACR_NAME).azurecr.io/$(REPOSITORY_NAME)/$(IMAGE_NAME):$(IMAGE_TAG) \
+        --registry-username $(ACR_NAME) \
+        --registry-password $(az acr credential show --name $(ACR_NAME) --query "passwords[0].value" -o tsv)

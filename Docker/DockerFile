@@ -1,0 +1,57 @@
+# Use an official Ubuntu as a parent image
+FROM ubuntu:20.04
+
+# Maintainer information
+MAINTAINER John Doe <john.doe@example.com>
+
+# Set build-time environment variables
+ARG DEBIAN_FRONTEND=noninteractive
+ARG build_version=1.0
+
+# Set environment variables
+ENV APP_HOME=/usr/src/app
+ENV MY_VAR=my_value
+
+# Set the working directory
+WORKDIR $APP_HOME
+
+# Install any needed packages
+RUN apt-get update && \
+    apt-get install -y python3-pip && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy the current directory contents into the container at /usr/src/app
+COPY . $APP_HOME
+
+# Add additional files or directories
+ADD config.yaml /etc/myapp/config.yaml
+
+# Install Python dependencies
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+# Label the image
+LABEL version="1.0" description="An example Dockerfile with all components"
+
+# Make port 80 available to the world outside this container
+EXPOSE 80
+
+# Define a volume
+VOLUME ["/data"]
+
+# Define the user
+USER myuser
+
+# Set the entrypoint
+ENTRYPOINT ["python3"]
+
+# Define the default command
+CMD ["app.py"]
+
+# Define the signal that will be sent to the container to exit
+STOPSIGNAL SIGTERM
+
+# Set the default shell
+SHELL ["/bin/bash", "-c"]
+
+# Health check to ensure the container is running properly
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD curl --fail http://localhost/ || exit 1

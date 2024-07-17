@@ -1,0 +1,48 @@
+# Example azure-pipelines.yml
+
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - group: TerraformVars  # Azure Key Vault or Variable Group containing secrets and variables
+
+stages:
+- stage: TerraformDeploy
+  displayName: 'Terraform Deployment'
+  jobs:
+  - job: Terraform
+    displayName: 'Terraform Job'
+    steps:
+    - task: TerraformToolInstaller@0
+      inputs:
+        terraformVersion: 'latest'  # Install the latest version of Terraform
+
+    - script: |
+        terraform init -backend-config="storage_account_name=$(storageAccountName)" \
+                       -backend-config="container_name=$(containerName)" \
+                       -backend-config="key=$(terraform.tfstate)"
+      displayName: 'Terraform Init'
+      env:
+        ARM_CLIENT_ID: $(servicePrincipalId)
+        ARM_CLIENT_SECRET: $(servicePrincipalKey)
+        ARM_SUBSCRIPTION_ID: $(subscriptionId)
+        ARM_TENANT_ID: $(tenantId)
+        storageAccountName: $(storageAccountName)
+        containerName: $(containerName)
+
+    - script: |
+        terraform plan -out=tfplan \
+          -var="resource_group_name=$(resourceGroupName)" \
+          -var="location=$(location)" \
+          -var="prefix=$(prefix)" \
+          -var="admin_username=$(adminUsername)"
+      displayName: 'Terraform Plan'
+
+    - script: |
+        terraform apply -auto-approve tfplan
+      displayName: 'Terraform Apply'

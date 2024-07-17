@@ -1,0 +1,8 @@
+# Example Dockerfile for backend application
+FROM openjdk:11-jre-slim
+
+WORKDIR /app
+
+COPY ./target/backend.jar .
+
+CMD ["java", "-jar", "backend.jar"]

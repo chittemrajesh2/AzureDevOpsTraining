@@ -1,0 +1,39 @@
+# Azure Pipelines YAML for Backend Docker Image Deployment to AKS
+
+trigger:
+- main  # Trigger pipeline on commits to the main branch
+
+pool:
+  vmImage: 'ubuntu-latest'  # Choose the appropriate VM image for your build environment
+
+variables:
+  azureSubscription: '<Azure Subscription Name>'
+  resourceGroupName: '<Azure Resource Group Name>'
+  kubernetesCluster: '<Kubernetes Cluster Name>'
+  dockerRegistryServiceConnection: '<Docker Registry Service Connection>'
+  imageRepository: '<Your Docker Image Repository>'
+  imageTag: 'latest'  # Update with your image tag
+
+stages:
+- stage: Deploy
+  displayName: 'Deploy to AKS'
+  jobs:
+  - job: Deploy
+    displayName: 'Deploy Docker Image to AKS'
+    steps:
+    - task: Docker@2
+      displayName: 'Build and Push Docker Image'
+      inputs:
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: '$(imageRepository)'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'  # Path to your Dockerfile
+        tags: '$(imageTag)'
+
+    - task: KubernetesManifest@0
+      displayName: 'Deploy to AKS'
+      inputs:
+        action: 'deploy'
+        kubernetesServiceConnection: '<Kubernetes Service Connection>'
+        namespace: 'default'  # Update with your Kubernetes namespace
+        manifests: '$(System.DefaultWorkingDirectory)/backend.yaml'  # Path to your backend Kubernetes manifest file

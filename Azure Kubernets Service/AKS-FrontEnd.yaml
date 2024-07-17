@@ -1,0 +1,64 @@
+# Azure Pipelines YAML for Frontend .jar Deployment
+
+trigger:
+- main  # Trigger pipeline on commits to the main branch
+
+pool:
+  vmImage: 'ubuntu-latest'  # Choose the appropriate VM image for your build environment
+
+variables:
+  azureSubscription: '<Azure Subscription Name>'
+  resourceGroupName: '<Azure Resource Group Name>'
+  kubernetesCluster: '<Kubernetes Cluster Name>'
+  kubernetesNamespace: 'default'  # Update with your Kubernetes namespace
+  jarFileName: '<Name of your .jar file>'
+  artifactPath: '<Path to your .jar file in the repository>'
+
+stages:
+- stage: Build
+  displayName: 'Build Stage'
+  jobs:
+  - job: Build
+    displayName: 'Build and Publish Artifact'
+    steps:
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'pom.xml'  # Path to your Maven POM file
+        goals: 'package'
+        publishJUnitResults: true
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(System.DefaultWorkingDirectory)/target/$(jarFileName).jar'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+- stage: Deploy
+  displayName: 'Deploy Stage'
+  dependsOn: Build
+  jobs:
+  - job: Deploy
+    displayName: 'Deploy to Kubernetes'
+    steps:
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'drop'
+        downloadPath: '$(System.DefaultWorkingDirectory)/drop'
+
+    - task: KubernetesManifest@0
+      inputs:
+        action: 'deploy'
+        kubernetesServiceConnection: '<Kubernetes Service Connection>'
+        namespace: '$(kubernetesNamespace)'
+        manifests: '$(System.DefaultWorkingDirectory)/drop/frontend.yaml'  # Path to your frontend manifest
+
+    - task: KubernetesManifest@0
+      inputs:
+        action: 'run'
+        kubernetesServiceConnection: '<Kubernetes Service Connection>'
+        namespace: '$(kubernetesNamespace)'
+        containers: 'container1'  # Replace with your container name
+        command: 'java -jar /path/to/$(jarFileName).jar'  # Command to run your .jar file

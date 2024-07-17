@@ -1,0 +1,27 @@
+# Yaml 
+
+## Overview
+
+This project aims to demonstrate the deployment process of a Docker image to Azure Spring App using Azure Container Registry (ACR).
+
+## Steps Breakdown
+
+### Step 1: Build and Push Docker Image to ACR
+
+**Description:** This step builds a Docker image from the specified Dockerfile, tags it with the specified image tag, and pushes it to Azure Container Registry (ACR).
+
+**Commands:**
+1. `az login`: Authenticates to Azure using service principal credentials.
+2. `az acr login --name <acr_name>`: Logs in to the specified ACR instance.
+3. `docker build -t <image_tag> .`: Builds the Docker image locally.
+4. `docker tag <image_tag> <acr_login_server>/<repository_name>:<image_tag>`: Tags the local Docker image with the ACR repository name and tag.
+5. `docker push <acr_login_server>/<repository_name>:<image_tag>`: Pushes the tagged Docker image to ACR.
+
+### Step 2: Deploy Docker Image to Azure Spring App
+
+**Description:** This step deploys the Docker image from ACR to the specified Azure Spring App service.
+
+**Commands:**
+1. `az login`: Authenticates to Azure using service principal credentials.
+2. `az spring app deploy --name <app_name> --service <service_name> --docker-custom-image-name <acr_login_server>/<repository_name>:<image_tag> --registry-username <registry_username> --registry-password <registry_password>`: Deploys the Docker image to Azure Spring App.
+

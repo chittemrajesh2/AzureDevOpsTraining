@@ -1,0 +1,56 @@
+# Azure Pipelines YAML for Java .jar Deployment
+
+trigger:
+- main  # Trigger pipeline on commits to the main branch
+
+pool:
+  vmImage: 'ubuntu-latest'  # Choose the appropriate VM image for your build environment
+
+variables:
+  azureSubscription: '<Azure Subscription Name>'
+  appName: '<Azure App Service Name>'
+  resourceGroupName: '<Azure Resource Group Name>'
+  jarFileName: '<Name of your .jar file>'
+  artifactPath: '<Path to your .jar file in the repository>'
+
+stages:
+- stage: Build
+  displayName: 'Build Stage'
+  jobs:
+  - job: Build
+    displayName: 'Build and Publish Artifact'
+    steps:
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'pom.xml'  # Path to your Maven POM file
+        goals: 'package'
+        publishJUnitResults: true
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(System.DefaultWorkingDirectory)/target/$(jarFileName).jar'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+- stage: Deploy
+  displayName: 'Deploy Stage'
+  dependsOn: Build
+  jobs:
+  - job: Deploy
+    displayName: 'Deploy to Azure App Service'
+    steps:
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'drop'
+        downloadPath: '$(System.DefaultWorkingDirectory)/drop'
+
+    - task: AzureWebApp@1
+      inputs:
+        azureSubscription: $(azureSubscription)
+        appName: $(appName)
+        package: '$(System.DefaultWorkingDirectory)/drop/$(jarFileName).jar'
+        resourceGroupName: $(resourceGroupName)
+        deployToSlotOrASE: false
